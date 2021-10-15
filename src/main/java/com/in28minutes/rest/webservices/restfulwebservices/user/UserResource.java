@@ -1,5 +1,6 @@
 package com.in28minutes.rest.webservices.restfulwebservices.user;
 
+import com.in28minutes.rest.webservices.restfulwebservices.exception.CustomizedResponseEntityExceptionHandler;
 import com.in28minutes.rest.webservices.restfulwebservices.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,6 +26,7 @@ public class UserResource{
     public User retrieveUser(@PathVariable int id){
         User user = userDaoService.findOne(id);
         if(user == null){
+
             throw new UserNotFoundException("id-" + id);
         }
         return user;

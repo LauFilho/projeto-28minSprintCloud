@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ExceptionResponse extends Exception {
     private Date timestamp;
-    private String mensagem;
+    private String message;
     private String detail;
 }
 
