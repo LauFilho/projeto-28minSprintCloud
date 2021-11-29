@@ -2,6 +2,11 @@ package com.in28minutes.rest.webservices.restfulwebservices.user;
 
 import com.in28minutes.rest.webservices.restfulwebservices.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -22,26 +27,36 @@ public class UserResource {
 
     }
 
+
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable int id) {
+    public EntityModel<User> retrieveUser(@PathVariable int id) {
         User user = userDaoService.findOne(id);
         if (user == null) {
-
             throw new UserNotFoundException("id-" + id);
         }
-        return user;
+
+        EntityModel<User> model = EntityModel.of(user);
+        WebMvcLinkBuilder linkToUsers =
+                linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        WebMvcLinkBuilder linkToUsers2 =
+                linkTo(methodOn(this.getClass()).createUser(user));
+        model.add(linkToUsers2.withRel("Create User"));
+        model.add(linkToUsers.withRel("All-Users"));
+
+        return model;
 
     }
 
+
     @PostMapping("/users")
-    public void createUser(@Valid @RequestBody  User user) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
         User savedUser = userDaoService.save(user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedUser.getId()).toUri();
 
-        ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).build();
     }
 
     @DeleteMapping("/users/{id}")
@@ -59,5 +74,4 @@ public class UserResource {
     }
 
 
-    //retrieveUser(int id)
 }
